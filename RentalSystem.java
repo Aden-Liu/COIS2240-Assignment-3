@@ -29,14 +29,22 @@ public class RentalSystem {
     	return instance;
     }
 
-    public void addVehicle(Vehicle vehicle) {
+    public boolean addVehicle(Vehicle vehicle) {
+    	if (findVehicleByPlate(vehicle.getLicensePlate()) != null)
+    		return false;
+    	
         vehicles.add(vehicle);
         saveVehicle(vehicle);
+        return true;
     }
 
-    public void addCustomer(Customer customer) {
+    public boolean addCustomer(Customer customer) {
+    	if (findCustomerById(Integer.toString(customer.getCustomerId())) != null)
+    		return false;
+    	
         customers.add(customer);
         saveCustomer(customer);
+        return true;
     }
 
     public void rentVehicle(Vehicle vehicle, Customer customer, LocalDate date, double amount) {
