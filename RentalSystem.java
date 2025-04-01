@@ -7,7 +7,6 @@ import java.util.Scanner; // Import the Scanner class to read text files
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class RentalSystem {
@@ -113,7 +112,7 @@ public class RentalSystem {
     
     public void saveVehicle(Vehicle vehicle) {
     	try {
-    		File vehicles = new File("vehicles.txt");
+    		File vehicles = new File("C:\\Users\\longw\\eclipse-workspace\\Assignment 3\\src\\vehicles.txt");
     		if (vehicles.createNewFile()) {
     			System.out.println("New save file created.");
     		}
@@ -126,7 +125,7 @@ public class RentalSystem {
     	}
     	
     	try {
-    		FileWriter myWriter = new FileWriter("vehicles.txt", true);
+    		FileWriter myWriter = new FileWriter("C:\\Users\\longw\\eclipse-workspace\\Assignment 3\\src\\vehicles.txt", true);
     		String vehicleType = vehicle.getClass().toString().substring(5);
     		myWriter.write("|" + vehicleType + vehicle.getInfo() + "\n");
     		myWriter.close();
@@ -139,7 +138,7 @@ public class RentalSystem {
     
     public void saveCustomer(Customer customer) {
     	try {
-    		File customers = new File("customers.txt");
+    		File customers = new File("C:\\Users\\longw\\eclipse-workspace\\Assignment 3\\src\\customers.txt");
     		if (customers.createNewFile()) {
     			System.out.println("New save file created.");
     		}
@@ -152,7 +151,7 @@ public class RentalSystem {
     	}
     	
     	try {
-    		FileWriter myWriter = new FileWriter("customers.txt", true);
+    		FileWriter myWriter = new FileWriter("C:\\Users\\longw\\eclipse-workspace\\Assignment 3\\src\\customers.txt", true);
     		myWriter.write("|" + customer.toString() + "\n");
     		myWriter.close();
     	} catch (IOException e) {
@@ -163,7 +162,7 @@ public class RentalSystem {
     
     public void saveRecord(RentalRecord record) {
     	try {
-    		File records = new File("rental_records.txt");
+    		File records = new File("C:\\Users\\longw\\eclipse-workspace\\Assignment 3\\src\\rental_records.txt");
     		if (records.createNewFile()) {
     			System.out.println("New save file created.");
     		}
@@ -176,7 +175,7 @@ public class RentalSystem {
     	}
     	
     	try {
-    		FileWriter myWriter = new FileWriter("rental_records.txt", true);
+    		FileWriter myWriter = new FileWriter("C:\\Users\\longw\\eclipse-workspace\\Assignment 3\\src\\rental_records.txt", true);
     		myWriter.write("|" + record.toString() + "\n");
     		myWriter.close();
     	} catch (IOException e) {
@@ -189,7 +188,7 @@ public class RentalSystem {
 		Pattern pattern = Pattern.compile("\\|([^|]+)");
 
     	try {
-    		File vehicles = new File("vehicles.txt");
+    		File vehicles = new File("C:\\Users\\longw\\eclipse-workspace\\Assignment 3\\src\\vehicles.txt");
     		Scanner myReader = new Scanner(vehicles);
     		Vehicle vehicle;
     		
@@ -201,12 +200,22 @@ public class RentalSystem {
     			while (matcher.find()) 
     				vehicleData.add(matcher.group(1));
     			
-    			if (vehicleData.get(0).equals("Car")) 
-    				vehicle = new Car(vehicleData.get(2), vehicleData.get(3), Integer.parseInt(vehicleData.get(4)), Integer.parseInt(vehicleData.get(6).substring(6)));
-    			else if (vehicleData.get(0).equals("Motorcycle")) 
-    				vehicle = new Motorcycle(vehicleData.get(2), vehicleData.get(3), Integer.parseInt(vehicleData.get(4)), vehicleData.get(6).substring(8) == "Yes" ? true : false);
-    			else 
-    				vehicle = new Truck(vehicleData.get(2), vehicleData.get(3), Integer.parseInt(vehicleData.get(4)), Double.parseDouble(vehicleData.get(6).substring(14)));
+    			String make = vehicleData.get(2);
+    			String model = vehicleData.get(3);
+    			int year = Integer.parseInt(vehicleData.get(4));
+    			
+    			if (vehicleData.get(0).equals("Car")) {
+        			int numSeats = Integer.parseInt(vehicleData.get(6).substring(6));
+    				vehicle = new Car(make, model, year, numSeats);
+    			}
+    			else if (vehicleData.get(0).equals("Motorcycle")) {
+        			boolean hasSidecar = vehicleData.get(6).substring(8) == "Yes" ? true : false;
+    				vehicle = new Motorcycle(make, model, year, hasSidecar);
+    			}
+    			else {
+        			double capacity = Double.parseDouble(vehicleData.get(6).substring(14));
+    				vehicle = new Truck(make, model, year, capacity);
+    			}
     			
 				vehicle.setLicensePlate(vehicleData.get(1));
 				this.vehicles.add(vehicle);
@@ -218,7 +227,7 @@ public class RentalSystem {
     	}
     	
     	try {
-    		File customers = new File("customers.txt");
+    		File customers = new File("C:\\Users\\longw\\eclipse-workspace\\Assignment 3\\src\\customers.txt");
     		Scanner myReader = new Scanner(customers);
     		
     		while (myReader.hasNextLine()) {
@@ -229,7 +238,10 @@ public class RentalSystem {
     			while (matcher.find())
     				customerData.add(matcher.group(1));
     			
-    			this.customers.add(new Customer(Integer.parseInt(customerData.get(0).substring(11)), customerData.get(1).substring(5)));
+    			int Id = Integer.parseInt(customerData.get(0).substring(11));
+    			String name = customerData.get(1).substring(5);
+    			
+    			this.customers.add(new Customer(Id, name));
     		}
     		myReader.close();
     	} catch (FileNotFoundException e) {
@@ -237,7 +249,7 @@ public class RentalSystem {
     	}
     	
     	try {
-    		File records = new File("rental_records.txt");
+    		File records = new File("C:\\Users\\longw\\eclipse-workspace\\Assignment 3\\src\\rental_records.txt");
     		Scanner myReader = new Scanner(records);
     		
     		while (myReader.hasNextLine()) {
@@ -255,6 +267,11 @@ public class RentalSystem {
     			LocalDate date = LocalDate.parse(recordData.get(4).substring(5));
     			
     			rentalHistory.addRecord(new RentalRecord(findVehicleByPlate(plate), findCustomerById(Id), date, amount, type));
+    			
+    			if (type.equals("RENT"))
+    				findVehicleByPlate(plate).setStatus(Vehicle.VehicleStatus.RENTED);
+    			else if (type.equals("RETURN"))
+    				findVehicleByPlate(plate).setStatus(Vehicle.VehicleStatus.AVAILABLE);
     		}
     		
     	} catch (FileNotFoundException e) {
