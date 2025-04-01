@@ -1,3 +1,0 @@
-| Car| MOR-999 | Toyota | Vicic | 3002 | AVAILABLE | | Seats: 4
-| Motorcycle| ERT-898 | Honda | Cycle | 2345 | AVAILABLE | | Sidecar: Yes
-| Truck| GYG-933 | Toyed | Edfff | 2323 | AVAILABLE | | Cargo Capacity: 98.0

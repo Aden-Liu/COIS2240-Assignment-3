@@ -1,2 +1,1 @@
-|RENT | Plate: MOR-999 | Customer ID: 12345 | Customer Name: Aden | Date: 2025-03-31 | Amount: $750.0
-|RETURN | Plate: MOR-999 | Customer ID: 12345 | Customer Name: Aden | Date: 2025-03-31 | Amount: $34.0
+
