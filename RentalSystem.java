@@ -2,6 +2,10 @@ import java.util.List;
 import java.io.File;  // Import the File class
 import java.io.FileWriter;   // Import the FileWriter class
 import java.io.IOException;  // Import the IOException class to handle errors
+import java.io.FileNotFoundException;  // Import this class to handle errors
+import java.util.Scanner; // Import the Scanner class to read text files
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -12,7 +16,9 @@ public class RentalSystem {
     
     private static RentalSystem instance;
     
-    private RentalSystem() {}
+    private RentalSystem() {
+    	loadData();
+    }
     
     public static RentalSystem getInstance() {
     	if (instance == null) {
@@ -109,7 +115,8 @@ public class RentalSystem {
     	
     	try {
     		FileWriter myWriter = new FileWriter("vehicles.txt", true);
-    		myWriter.write(vehicle.getInfo() + "\n");
+    		String vehicleType = vehicle.getClass().toString().substring(5);
+    		myWriter.write("|" + vehicleType + vehicle.getInfo() + "\n");
     		myWriter.close();
     	} catch (IOException e) {
     		System.out.println("An error occured in writing save file.");
@@ -166,4 +173,36 @@ public class RentalSystem {
     	}
     }
     
+    private void loadData() {
+    	try {
+    		File vehicles = new File("vehicles.txt");
+    		Scanner myReader = new Scanner(vehicles);
+    		Pattern pattern = Pattern.compile("\\|([^|]+)");
+    		Vehicle vehicle;
+    		
+    		while (myReader.hasNextLine()) {
+    			String data = myReader.nextLine();
+    			data = data.replace(" ", "");
+        		Matcher matcher = pattern.matcher(data);
+        		List<String> vehicleData = new ArrayList<>();
+
+    			while (matcher.find()) 
+    				vehicleData.add(matcher.group(1));
+    			
+    			if (vehicleData.get(0).equals("Car")) 
+    				vehicle = new Car(vehicleData.get(2), vehicleData.get(3), Integer.parseInt(vehicleData.get(4)), Integer.parseInt(vehicleData.get(6).substring(6)));
+    			else if (vehicleData.get(0).equals("Motorcycle")) 
+    				vehicle = new Motorcycle(vehicleData.get(2), vehicleData.get(3), Integer.parseInt(vehicleData.get(4)), vehicleData.get(6).substring(8) == "Yes" ? true : false);
+    			else 
+    				vehicle = new Truck(vehicleData.get(2), vehicleData.get(3), Integer.parseInt(vehicleData.get(4)), Double.parseDouble(vehicleData.get(6).substring(14)));
+    			
+				vehicle.setLicensePlate(vehicleData.get(1));
+				this.vehicles.add(vehicle);
+
+    		}
+    		myReader.close();
+    	} catch (FileNotFoundException e) {
+    		System.out.println("Save file for vehicle not found");
+    	}
+    }
 }
