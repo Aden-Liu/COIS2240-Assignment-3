@@ -7,6 +7,7 @@ import java.util.Scanner; // Import the Scanner class to read text files
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class RentalSystem {
@@ -35,12 +36,14 @@ public class RentalSystem {
 
     public void addCustomer(Customer customer) {
         customers.add(customer);
+        saveCustomer(customer);
     }
 
     public void rentVehicle(Vehicle vehicle, Customer customer, LocalDate date, double amount) {
         if (vehicle.getStatus() == Vehicle.VehicleStatus.AVAILABLE) {
             vehicle.setStatus(Vehicle.VehicleStatus.RENTED);
             rentalHistory.addRecord(new RentalRecord(vehicle, customer, date, amount, "RENT"));
+            saveRecord(new RentalRecord(vehicle, customer, date, amount, "RENT"));
             System.out.println("Vehicle rented to " + customer.getCustomerName());
         }
         else {
@@ -52,6 +55,7 @@ public class RentalSystem {
         if (vehicle.getStatus() == Vehicle.VehicleStatus.RENTED) {
             vehicle.setStatus(Vehicle.VehicleStatus.AVAILABLE);
             rentalHistory.addRecord(new RentalRecord(vehicle, customer, date, extraFees, "RETURN"));
+            saveRecord(new RentalRecord(vehicle, customer, date, extraFees, "RETURN"));
             System.out.println("Vehicle returned by " + customer.getCustomerName());
         }
         else {
@@ -141,7 +145,7 @@ public class RentalSystem {
     	
     	try {
     		FileWriter myWriter = new FileWriter("customers.txt", true);
-    		myWriter.write(customer.toString() + "\n");
+    		myWriter.write("|" + customer.toString() + "\n");
     		myWriter.close();
     	} catch (IOException e) {
     		System.out.println("An error occured in writing save file.");
@@ -165,7 +169,7 @@ public class RentalSystem {
     	
     	try {
     		FileWriter myWriter = new FileWriter("rental_records.txt", true);
-    		myWriter.write(record.toString() + "\n");
+    		myWriter.write("|" + record.toString() + "\n");
     		myWriter.close();
     	} catch (IOException e) {
     		System.out.println("An error occured in writing save file.");
@@ -174,15 +178,15 @@ public class RentalSystem {
     }
     
     private void loadData() {
+		Pattern pattern = Pattern.compile("\\|([^|]+)");
+
     	try {
     		File vehicles = new File("vehicles.txt");
     		Scanner myReader = new Scanner(vehicles);
-    		Pattern pattern = Pattern.compile("\\|([^|]+)");
     		Vehicle vehicle;
     		
     		while (myReader.hasNextLine()) {
-    			String data = myReader.nextLine();
-    			data = data.replace(" ", "");
+    			String data = myReader.nextLine().replace(" ", "");
         		Matcher matcher = pattern.matcher(data);
         		List<String> vehicleData = new ArrayList<>();
 
@@ -203,6 +207,50 @@ public class RentalSystem {
     		myReader.close();
     	} catch (FileNotFoundException e) {
     		System.out.println("Save file for vehicle not found");
+    	}
+    	
+    	try {
+    		File customers = new File("customers.txt");
+    		Scanner myReader = new Scanner(customers);
+    		
+    		while (myReader.hasNextLine()) {
+    			String data = myReader.nextLine().replace(" ", "");
+    			Matcher matcher = pattern.matcher(data);
+    			List<String> customerData = new ArrayList<>();
+    			
+    			while (matcher.find())
+    				customerData.add(matcher.group(1));
+    			
+    			this.customers.add(new Customer(Integer.parseInt(customerData.get(0).substring(11)), customerData.get(1).substring(5)));
+    		}
+    		myReader.close();
+    	} catch (FileNotFoundException e) {
+    		System.out.println("Save file for customers not found");
+    	}
+    	
+    	try {
+    		File records = new File("rental_records.txt");
+    		Scanner myReader = new Scanner(records);
+    		
+    		while (myReader.hasNextLine()) {
+    			String data = myReader.nextLine().replace(" ", "");
+    			Matcher matcher = pattern.matcher(data);
+    			List<String> recordData = new ArrayList<>();
+    			
+    			while (matcher.find())
+    				recordData.add(matcher.group(1));
+    			
+    			String plate = recordData.get(1).substring(6);
+    			String Id = recordData.get(2).substring(11);
+    			String type = recordData.get(0);
+    			double amount = Double.parseDouble(recordData.get(5).substring(8));
+    			LocalDate date = LocalDate.parse(recordData.get(4).substring(5));
+    			
+    			rentalHistory.addRecord(new RentalRecord(findVehicleByPlate(plate), findCustomerById(Id), date, amount, type));
+    		}
+    		
+    	} catch (FileNotFoundException e) {
+    		System.out.println("Save file for records not found");
     	}
     }
 }

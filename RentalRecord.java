@@ -26,7 +26,8 @@ public class RentalRecord {
     @Override
     public String toString() {
         return recordType + " | Plate: " + vehicle.getLicensePlate() + 
-               " | Customer: " + customer.getCustomerName() + 
+                " | Customer ID: " + customer.getCustomerId() + 
+               " | Customer Name: " + customer.getCustomerName() + 
                " | Date: " + recordDate + 
                " | Amount: $" + totalAmount;
     }
