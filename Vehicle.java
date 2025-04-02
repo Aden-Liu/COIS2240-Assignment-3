@@ -20,7 +20,10 @@ public abstract class Vehicle {
     }
 
     public void setLicensePlate(String plate) {
-        this.licensePlate = plate == null ? null : plate.toUpperCase();
+        if (!isValidPlate(plate))
+        	throw new IllegalArgumentException("Invalid license plate.");
+        
+        licensePlate = plate;
     }
 
     public void setStatus(VehicleStatus status) {
@@ -48,6 +51,16 @@ public abstract class Vehicle {
     		input = input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
     	
     	return input;
+    }
+    
+    private boolean isValidPlate(String plate) {
+    	if (plate == null || plate.isEmpty())
+    		return false;
+    	
+    	if (plate.matches("[a-zA-Z]{3}\\d{3}")) //[a-zA-Z] means every letter, \\d means every integer. {3} means exactly 3 preceeding
+    		return true;
+    	
+    	return false;
     }
 
 }
