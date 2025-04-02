@@ -2,3 +2,5 @@
 |RENT | Plate: CCC333 | Customer ID: 1 | Customer Name: George | Date: 2025-03-31 | Amount: $100.0
 |RETURN | Plate: CCC333 | Customer ID: 1 | Customer Name: George | Date: 2025-03-31 | Amount: $100.0
 |RENT | Plate: CCC333 | Customer ID: 2 | Customer Name: Anne | Date: 2025-03-31 | Amount: $100.0
+|RENT | Plate: null | Customer ID: 12345 | Customer Name: Aden | Date: 2025-04-01 | Amount: $100.0
+|RETURN | Plate: null | Customer ID: 12345 | Customer Name: Aden | Date: 2025-04-01 | Amount: $100.0
