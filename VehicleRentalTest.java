@@ -6,6 +6,8 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.lang.reflect.Constructor;
+import   java.lang.reflect.Modifier;
 
 class VehicleRentalTest {
 	private Vehicle testCarOne;
@@ -47,6 +49,8 @@ class VehicleRentalTest {
 	public void testRentAndReturn() {
 		assertTrue(testCarOne.getStatus() == Vehicle.VehicleStatus.AVAILABLE);
 		
+		testCarOne.setLicensePlate("AAA100");
+		rentalSystem.addVehicle(testCarOne);
 		rentalSystem.addCustomer(CustomerOne);
 
 		assertTrue(rentalSystem.rentVehicle(testCarOne, CustomerOne, LocalDate.now(), 100));
@@ -56,5 +60,17 @@ class VehicleRentalTest {
 		assertTrue(rentalSystem.returnVehicle(testCarOne, CustomerOne, LocalDate.now(), 100));
 		assertTrue(testCarOne.getStatus() == Vehicle.VehicleStatus.AVAILABLE);
 		assertFalse(rentalSystem.returnVehicle(testCarOne, CustomerOne, LocalDate.now(), 100));
+	}
+	
+	@Test
+	public void testSingletonRentalSystem() {
+		try {
+			Constructor<RentalSystem> constructor = RentalSystem.class.getDeclaredConstructor();
+			
+			assertTrue(constructor.getModifiers() == Modifier.PRIVATE);
+			assertTrue(RentalSystem.getInstance() != null);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 }
